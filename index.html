@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MangaTrueque: intercambia mangas con coleccionistas de tu ciudad de forma segura.">
+  <title>MANGATRUEQUE | Intercambia tus mangas</title>
+
+  <!-- GTM: primer bloque (script). Reemplaza GTM-XXXXXXX con tu ID -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+
+  <style>
+    :root {
+      --rojo: #c0432f;
+      --rojo-oscuro: #8f2d1e;
+      --negro: #111111;
+      --carbon: #3a3a3a;
+      --papel: #f2f2ef;
+      --blanco: #ffffff;
+      --gris: #5c5c5c;
+      --borde-grueso: 4px solid #111111;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Source Sans 3", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      color: var(--negro); line-height: 1.6; background: var(--papel); overflow-x: hidden;
+      background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
+      background-size: 6px 6px;
+    }
+    section { padding: 96px 24px; position: relative; }
+    .contenedor { max-width: 1140px; margin: 0 auto; position: relative; z-index: 1; }
+
+    h1, h2, h3, .titulo { font-family: "Archivo Black", "Arial Black", Impact, sans-serif; text-transform: uppercase; letter-spacing: -0.01em; line-height: 1.05; }
+    h1 { font-size: clamp(2.6rem, 5.4vw, 4.4rem); margin-bottom: 24px; }
+    h2 { font-size: clamp(2rem, 3.6vw, 2.9rem); margin-bottom: 16px; text-align: center; }
+    h3 { font-size: 1.15rem; margin-bottom: 10px; }
+    p { margin-bottom: 12px; }
+
+    .etiqueta { display: inline-block; font-family: "Archivo Black", "Arial Black", sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blanco); background: var(--negro); padding: 6px 14px; margin-bottom: 18px; }
+    .etiqueta-centro { display: table; margin: 0 auto 18px; }
+    .subtitulo { text-align: center; color: var(--gris); max-width: 620px; margin: 0 auto 56px; font-size: 1.1rem; }
+
+    .btn { display: inline-flex; align-items: center; gap: 10px; font-family: "Archivo Black", "Arial Black", sans-serif; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.95rem; background: var(--rojo); color: var(--blanco); padding: 16px 28px; border: var(--borde-grueso); text-decoration: none; cursor: pointer; box-shadow: 6px 6px 0 var(--negro); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .btn:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--negro); }
+    .btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--negro); }
+    .btn-blanco { background: var(--blanco); color: var(--negro); }
+    .btn-secundario { background: var(--blanco); color: var(--negro); }
+
+    /* HOJAS DE LOTO (decorativas, SVG) */
+    .loto { position: absolute; pointer-events: none; z-index: 0; overflow: visible; }
+    .loto-rojo { color: var(--rojo); }
+    .loto-negro { color: var(--negro); }
+    .loto-blanco { color: var(--blanco); }
+    .loto path { fill: currentColor; }
+    .loto .nervio { fill: none; stroke: var(--negro); stroke-width: 2; stroke-linecap: round; opacity: 0.55; }
+    .loto-blanco .nervio { stroke: var(--rojo); opacity: 0.6; }
+    .flotar-hoja { animation: flotarHoja 9s ease-in-out infinite; }
+    .flotar-hoja-2 { animation: flotarHoja 12s ease-in-out infinite; animation-delay: -4s; }
+    .flotar-hoja-3 { animation: flotarHoja 10s ease-in-out infinite; animation-delay: -7s; }
+    @keyframes flotarHoja {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-18px) rotate(8deg); }
+    }
+
+    /* HEADER */
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--papel); border-bottom: var(--borde-grueso); }
+    header .contenedor { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; }
+    .logo { font-family: "Archivo Black", "Arial Black", sans-serif; text-transform: uppercase; font-size: 1.2rem; color: var(--negro); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .logo-icono { width: 34px; height: 34px; background: var(--rojo); border: 3px solid var(--negro); border-radius: 50%; display: grid; place-items: center; color: var(--blanco); font-size: 0.9rem; }
+    nav { display: flex; align-items: center; gap: 26px; }
+    nav a { color: var(--negro); text-decoration: none; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    nav a:hover { color: var(--rojo); }
+    .btn-nav { padding: 10px 18px; font-size: 0.8rem; box-shadow: 4px 4px 0 var(--negro); }
+    .btn-nav:hover { transform: none; }
+    .menu-toggle { display: none; background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--negro); }
+
+    /* HERO */
+    .hero { padding-top: 170px; padding-bottom: 110px; overflow: hidden; }
+    .circulo { position: absolute; width: 360px; height: 360px; border-radius: 50%; background: var(--rojo); left: -150px; top: 140px; z-index: 0; }
+    .hero .contenedor { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; }
+    .hero-texto { position: relative; z-index: 1; }
+    .hero p.lead { font-size: 1.15rem; color: var(--carbon); margin-bottom: 32px; max-width: 520px; }
+    .hero-caja { border: var(--borde-grueso); padding: 18px 22px; background: var(--blanco); max-width: 520px; margin-bottom: 32px; box-shadow: 8px 8px 0 var(--negro); }
+    .hero-caja p { margin: 0; font-size: 1.05rem; }
+    .hero-botones { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-prueba { margin-top: 28px; font-size: 0.95rem; color: var(--carbon); display: flex; align-items: center; gap: 12px; }
+    .avatares { display: flex; }
+    .avatares span { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--negro); display: grid; place-items: center; color: var(--blanco); font-size: 0.7rem; font-weight: 800; margin-left: -10px; }
+    .avatares span:first-child { margin-left: 0; }
+
+    /* PANELES TIPO CÓMIC */
+    .paneles { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .panel { border: var(--borde-grueso); position: relative; overflow: hidden; background: var(--carbon); min-height: 150px; animation: entrar 0.8s ease both; }
+    .panel:nth-child(2) { animation-delay: 0.15s; }
+    .panel:nth-child(3) { animation-delay: 0.3s; }
+    .panel-ancho { grid-column: 1 / -1; min-height: 210px; background: var(--rojo); }
+    .panel-rojo { background: var(--rojo); }
+    .panel-negro { background: var(--negro); }
+    .panel-blanco { background: var(--blanco); }
+    .panel::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(115deg, transparent 0 14px, rgba(0,0,0,0.18) 14px 16px); pointer-events: none; }
+    .panel-blanco::after { background: repeating-linear-gradient(115deg, transparent 0 14px, rgba(0,0,0,0.08) 14px 16px); }
+    .panel .trazo { position: absolute; background: var(--negro); transform-origin: left center; }
+    .trazo-1 { width: 70%; height: 10px; left: 10%; top: 35%; transform: rotate(-18deg); }
+    .trazo-2 { width: 55%; height: 6px; left: 25%; top: 58%; transform: rotate(12deg); }
+    .trazo-3 { width: 40%; height: 14px; right: 10%; top: 20%; transform: rotate(25deg); background: var(--blanco); }
+    .panel .ojo { position: absolute; width: 46%; height: 26%; left: 27%; top: 36%; border-radius: 50%; background: var(--blanco); border: 4px solid var(--negro); }
+    .panel .ojo::after { content: ""; position: absolute; width: 36%; height: 60%; left: 32%; top: 20%; border-radius: 50%; background: var(--negro); }
+    .panel-marco { position: absolute; top: -18px; left: -18px; width: 42%; height: 46%; border-left: var(--borde-grueso); border-top: var(--borde-grueso); z-index: 2; }
+    .panel-marco-2 { position: absolute; bottom: -18px; right: -18px; width: 38%; height: 40%; border-right: var(--borde-grueso); border-bottom: var(--borde-grueso); z-index: 2; }
+    .panel .loto { position: absolute; z-index: 1; }
+
+    .tarjeta-onomatopeya { position: absolute; top: -26px; right: -14px; z-index: 3; background: var(--blanco); border: var(--borde-grueso); font-family: "Archivo Black", "Arial Black", sans-serif; text-transform: uppercase; font-size: 1.1rem; padding: 10px 16px; transform: rotate(6deg); box-shadow: 5px 5px 0 var(--negro); }
+
+    /* BANDA */
+    .banda { background: var(--negro); color: var(--blanco); padding: 22px 0; overflow: hidden; white-space: nowrap; border-top: var(--borde-grueso); border-bottom: var(--borde-grueso); }
+    .banda-texto { display: inline-block; animation: deslizar 26s linear infinite; font-family: "Archivo Black", "Arial Black", sans-serif; text-transform: uppercase; font-size: 1.1rem; letter-spacing: 0.06em; }
+    .banda-texto span { margin: 0 26px; }
+    .banda-texto span.sep { color: var(--rojo); }
+
+    .confianza { padding: 40px 24px; background: var(--blanco); border-bottom: var(--borde-grueso); }
+    .confianza p { text-align: center; font-family: "Archivo Black", "Arial Black", sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+    .pills { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+    .pills span { border: 3px solid var(--negro); padding: 8px 16px; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
+    .pills span:nth-child(odd) { background: var(--rojo); color: var(--blanco); }
+
+    /* BENEFICIOS */
+    .grid { display: grid; gap: 26px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    .tarjeta { background: var(--blanco); border: var(--borde-grueso); padding: 30px 26px; box-shadow: 8px 8px 0 var(--negro); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .tarjeta:hover { transform: translate(-4px, -4px); box-shadow: 12px 12px 0 var(--negro); }
+    .icono-caja { width: 56px; height: 56px; border: 3px solid var(--negro); background: var(--rojo); display: grid; place-items: center; font-size: 1.5rem; margin-bottom: 18px; }
+    .tarjeta p { color: var(--gris); font-size: 1rem; margin: 0; }
+
+    /* CTA BANDA */
+    .cta-banda { background: var(--rojo); color: var(--blanco); text-align: center; border-top: var(--borde-grueso); border-bottom: var(--borde-grueso); overflow: hidden; }
+    .cta-banda::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(115deg, transparent 0 22px, rgba(0,0,0,0.08) 22px 24px); pointer-events: none; }
+    .cta-banda h2 { color: var(--blanco); }
+    .cta-banda p { color: #ffe3dc; font-size: 1.15rem; margin-bottom: 32px; }
+    .cta-banda .btn { background: var(--blanco); color: var(--negro); }
+
+    /* CÓMO FUNCIONA */
+    .paso { text-align: center; padding: 10px; }
+    .paso-numero { width: 72px; height: 72px; margin: 0 auto 20px; border: var(--borde-grueso); border-radius: 50%; background: var(--negro); color: var(--blanco); display: grid; place-items: center; font-family: "Archivo Black", "Arial Black", sans-serif; font-size: 1.6rem; box-shadow: 5px 5px 0 var(--rojo); }
+    .paso h3 { font-size: 1.05rem; }
+    .paso p { color: var(--gris); font-size: 1rem; }
+
+    /* CIFRAS */
+    .cifras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: center; margin-top: 40px; }
+    .cifras div { border: var(--borde-grueso); padding: 28px 20px; background: var(--blanco); box-shadow: 6px 6px 0 var(--rojo); }
+    .cifras strong { display: block; font-family: "Archivo Black", "Arial Black", sans-serif; font-size: 2.8rem; color: var(--negro); }
+    .cifras span { color: var(--gris); font-size: 0.95rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em; }
+
+    /* TESTIMONIOS */
+    .testimonio { display: flex; flex-direction: column; }
+    .estrellas { color: var(--rojo); letter-spacing: 3px; margin-bottom: 12px; font-size: 1.1rem; }
+    .testimonio blockquote { font-size: 1.05rem; margin-bottom: 24px; flex: 1; font-weight: 600; }
+    .autor-caja { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 48px; height: 48px; border: 3px solid var(--negro); display: grid; place-items: center; color: var(--blanco); font-family: "Archivo Black", "Arial Black", sans-serif; font-size: 0.9rem; flex-shrink: 0; }
+    .autor-caja strong { display: block; font-size: 0.95rem; text-transform: uppercase; }
+    .autor-caja small { color: var(--gris); font-size: 0.85rem; }
+
+    /* FORMULARIO */
+    .registro-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 64px; align-items: center; }
+    .registro-grid h2 { text-align: left; }
+    .registro-grid ul { list-style: none; margin-top: 24px; }
+    .registro-grid li { padding: 8px 0; font-weight: 600; display: flex; gap: 12px; align-items: center; }
+    .registro-grid li::before { content: "✕"; width: 26px; height: 26px; background: var(--rojo); color: var(--blanco); border: 2px solid var(--negro); display: grid; place-items: center; font-weight: 800; font-size: 0.75rem; flex-shrink: 0; }
+    .formulario { background: var(--blanco); padding: 36px; border: var(--borde-grueso); box-shadow: 10px 10px 0 var(--rojo); }
+    .formulario h3 { font-size: 1.35rem; }
+    .formulario > p { color: var(--gris); margin-bottom: 24px; }
+    #hubspot-form { min-height: 200px; display: grid; place-items: center; }
+    .marcador { color: #777; text-align: center; font-size: 0.95rem; border: 3px dashed var(--negro); padding: 40px 20px; width: 100%; }
+
+    /* FAQ */
+    .faq { max-width: 780px; margin: 0 auto; }
+    details { background: var(--blanco); border: var(--borde-grueso); padding: 20px 24px; margin-bottom: 16px; box-shadow: 6px 6px 0 var(--negro); }
+    details[open] { box-shadow: 6px 6px 0 var(--rojo); }
+    summary { font-family: "Archivo Black", "Arial Black", sans-serif; text-transform: uppercase; font-size: 0.95rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; font-size: 1.6rem; color: var(--rojo); transition: transform 0.25s ease; line-height: 1; }
+    details[open] summary::after { transform: rotate(45deg); }
+    details p { margin-top: 12px; color: var(--gris); font-size: 1rem; }
+
+    /* PRE-FOOTER */
+    .prefooter { background: var(--papel); }
+    .prefooter-caja { background: var(--negro); color: var(--blanco); border: var(--borde-grueso); padding: 64px 32px; text-align: center; position: relative; overflow: hidden; box-shadow: 12px 12px 0 var(--rojo); }
+    .prefooter-caja::before { content: ""; position: absolute; width: 260px; height: 260px; border-radius: 50%; background: var(--rojo); right: -90px; top: -90px; }
+    .prefooter-caja h2 { color: var(--blanco); position: relative; }
+    .prefooter-caja p { color: #d9d9d9; margin-bottom: 28px; font-size: 1.1rem; position: relative; }
+    .prefooter-caja .btn { position: relative; }
+
+    /* FOOTER */
+    footer { background: var(--negro); color: #bdbdbd; padding: 56px 24px 32px; border-top: var(--borde-grueso); }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    footer h4 { font-family: "Archivo Black", "Arial Black", sans-serif; text-transform: uppercase; color: var(--blanco); font-size: 0.9rem; margin-bottom: 14px; }
+    footer a { display: block; color: #bdbdbd; text-decoration: none; margin-bottom: 10px; font-size: 0.95rem; }
+    footer a:hover { color: var(--rojo); }
+    footer p { font-size: 0.95rem; max-width: 300px; }
+    .footer-base { border-top: 2px solid #333; padding-top: 24px; font-size: 0.85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+    /* ANIMACIONES */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-retraso-1 { transition-delay: 0.1s; }
+    .reveal-retraso-2 { transition-delay: 0.2s; }
+    .reveal-retraso-3 { transition-delay: 0.3s; }
+
+    @keyframes deslizar { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes entrar { from { opacity: 0; transform: scale(0.96) translateY(20px); } to { opacity: 1; transform: none; } }
+    @keyframes pulso { 0% { box-shadow: 6px 6px 0 var(--negro), 0 0 0 0 rgba(192, 67, 47, 0.5); } 70% { box-shadow: 6px 6px 0 var(--negro), 0 0 0 16px rgba(192, 67, 47, 0); } 100% { box-shadow: 6px 6px 0 var(--negro), 0 0 0 0 rgba(192, 67, 47, 0); } }
+    .btn-pulso { animation: pulso 2.2s infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 900px) {
+      .hero .contenedor, .registro-grid, .footer-grid { grid-template-columns: 1fr; }
+      .cifras { grid-template-columns: 1fr; }
+      .circulo { width: 260px; height: 260px; left: -120px; top: 80px; }
+      .hero { padding-top: 130px; }
+      nav { display: none; }
+      .menu-toggle { display: block; }
+      nav.abierto { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--papel); padding: 24px; gap: 18px; border-bottom: var(--borde-grueso); }
+      .loto-grande { width: 150px !important; height: 150px !important; }
+    }
+    @media (max-width: 600px) {
+      section { padding: 72px 20px; }
+      .formulario { padding: 24px; }
+      .paneles { gap: 10px; }
+      .panel { min-height: 120px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Símbolo reutilizable: hoja de loto (un círculo con una cuña abierta y nervios) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="hoja-loto" viewBox="0 0 100 100">
+        <path d="M50 50 L72.5 10 A45 45 0 1 0 92.3 34.6 Z"/>
+        <path class="nervio" d="M50 50 L70 30 M50 50 L40 22 M50 50 L86 46" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- GTM: segundo bloque (noscript), justo después de <body> -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <!-- HEADER -->
+  <header id="header">
+    <div class="contenedor">
+      <a href="#inicio" class="logo"><span class="logo-icono">⇄</span> MangaTrueque</a>
+      <nav id="menu">
+        <a href="#beneficios">Beneficios</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#testimonios">Testimonios</a>
+        <a href="#faq">Preguntas</a>
+        <a href="#registro" class="btn btn-nav">Únete gratis</a>
+      </nav>
+      <button class="menu-toggle" id="toggle" aria-label="Abrir menú">☰</button>
+    </div>
+  </header>
+
+  <!-- 1. HERO -->
+  <section class="hero" id="inicio">
+    <div class="circulo" aria-hidden="true"></div>
+
+    <!-- Hojas de loto decorativas -->
+    <svg class="loto loto-rojo flotar-hoja" style="width:110px;height:110px;right:4%;top:120px;transform:rotate(18deg);" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <svg class="loto loto-negro flotar-hoja-2" style="width:70px;height:70px;left:46%;bottom:90px;transform:rotate(-12deg);" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <svg class="loto loto-rojo flotar-hoja-3" style="width:55px;height:55px;right:28%;top:44px;transform:rotate(-30deg);" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <svg class="loto loto-negro flotar-hoja" style="width:40px;height:40px;left:6%;bottom:60px;transform:rotate(40deg);" aria-hidden="true"><use href="#hoja-loto"/></svg>
+
+    <div class="contenedor">
+      <div class="hero-texto reveal visible">
+        <span class="etiqueta">Para coleccionistas de manga</span>
+        <h1>Cambia tus mangas por los que te faltan</h1>
+        <div class="hero-caja">
+          <p>Publica los tomos que ya leíste, busca los que te faltan y acuerda el intercambio con coleccionistas cerca de ti. Sin gastar un peso.</p>
+        </div>
+        <div class="hero-botones">
+          <a href="#registro" class="btn btn-pulso" id="btn-hero">Únete gratis →</a>
+          <a href="#como-funciona" class="btn btn-secundario">Ver cómo funciona</a>
+        </div>
+        <div class="hero-prueba">
+          <div class="avatares">
+            <span style="background:#c0432f;color:#fff">AK</span>
+            <span style="background:#fff;color:#111">NR</span>
+            <span style="background:#3a3a3a;color:#fff">LT</span>
+            <span style="background:#f2f2ef;color:#111">+</span>
+          </div>
+          <span>Más de <strong>1.500 coleccionistas</strong> ya intercambian</span>
+        </div>
+      </div>
+
+      <div class="reveal reveal-retraso-1 visible" style="position:relative;">
+        <div class="tarjeta-onomatopeya">¡Trato hecho!</div>
+        <div class="paneles">
+          <div class="panel panel-ancho panel-rojo">
+            <div class="trazo trazo-3"></div>
+            <div class="trazo trazo-1"></div>
+            <svg class="loto loto-blanco" style="width:90px;height:90px;right:6%;bottom:-18px;transform:rotate(-20deg);" aria-hidden="true"><use href="#hoja-loto"/></svg>
+          </div>
+          <div class="panel panel-blanco">
+            <div class="trazo trazo-2" style="top:30%;"></div>
+            <div class="trazo trazo-1" style="top:65%; width:60%; left:20%;"></div>
+            <div class="panel-marco"></div>
+            <svg class="loto loto-rojo" style="width:60px;height:60px;left:8%;top:8%;transform:rotate(15deg);" aria-hidden="true"><use href="#hoja-loto"/></svg>
+          </div>
+          <div class="panel panel-negro">
+            <div class="ojo"></div>
+            <div class="panel-marco-2"></div>
+            <svg class="loto loto-rojo" style="width:64px;height:64px;right:10%;top:10%;transform:rotate(-25deg);" aria-hidden="true"><use href="#hoja-loto"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANDA -->
+  <div class="banda" aria-hidden="true">
+    <div class="banda-texto">
+      <span>Tomos</span><span class="sep">●</span><span>Trueque</span><span class="sep">●</span><span>Coleccionistas</span><span class="sep">●</span><span>Intercambio</span><span class="sep">●</span><span>Colección</span><span class="sep">●</span>
+      <span>Tomos</span><span class="sep">●</span><span>Trueque</span><span class="sep">●</span><span>Coleccionistas</span><span class="sep">●</span><span>Intercambio</span><span class="sep">●</span><span>Colección</span><span class="sep">●</span>
+    </div>
+  </div>
+
+  <!-- CONFIANZA -->
+  <div class="confianza">
+    <div class="contenedor">
+      <p>Para todos los gustos</p>
+      <div class="pills">
+        <span>Acción</span><span>Romance</span><span>Misterio</span><span>Ciencia ficción</span><span>Comedia</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. BENEFICIOS -->
+  <section id="beneficios" style="overflow:hidden;">
+    <svg class="loto loto-negro flotar-hoja-2" style="width:120px;height:120px;right:-30px;top:40px;transform:rotate(10deg);opacity:0.12;" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <div class="contenedor">
+      <div class="reveal">
+        <span class="etiqueta etiqueta-centro">Beneficios</span>
+        <h2>Completa tu colección sin gastar de más</h2>
+        <p class="subtitulo">Todo lo que necesitas para cambiar mangas con confianza.</p>
+      </div>
+      <div class="grid">
+        <div class="tarjeta reveal">
+          <div class="icono-caja">🔄</div>
+          <h3>Trueque directo</h3>
+          <p>Propone cambios uno a uno o en paquetes de varios tomos.</p>
+        </div>
+        <div class="tarjeta reveal reveal-retraso-1">
+          <div class="icono-caja">📍</div>
+          <h3>Coleccionistas cerca</h3>
+          <p>Encuentra personas de tu ciudad para encontrarse en un punto seguro.</p>
+        </div>
+        <div class="tarjeta reveal reveal-retraso-2">
+          <div class="icono-caja">⭐</div>
+          <h3>Reputación confiable</h3>
+          <p>Cada intercambio deja una calificación para que sepas con quién tratas.</p>
+        </div>
+        <div class="tarjeta reveal reveal-retraso-3">
+          <div class="icono-caja">🔔</div>
+          <h3>Alertas de búsqueda</h3>
+          <p>Te avisamos cuando alguien publique el tomo que buscas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. CTA -->
+  <section class="cta-banda" id="cta-1">
+    <svg class="loto loto-blanco flotar-hoja" style="width:130px;height:130px;left:4%;top:20px;transform:rotate(-15deg);opacity:0.18;" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <svg class="loto loto-blanco flotar-hoja-3" style="width:80px;height:80px;right:6%;bottom:20px;transform:rotate(25deg);opacity:0.18;" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <div class="contenedor reveal">
+      <h2>Publica tu primer tomo hoy</h2>
+      <p>Regístrate gratis y empieza a cambiar en minutos.</p>
+      <a href="#registro" class="btn btn-blanco" id="btn-cta-principal">Intercambiar ahora →</a>
+    </div>
+  </section>
+
+  <!-- 4. EXPLICACIÓN -->
+  <section id="como-funciona" style="background:var(--blanco); border-bottom: var(--borde-grueso);">
+    <div class="contenedor">
+      <div class="reveal">
+        <span class="etiqueta etiqueta-centro">Cómo funciona</span>
+        <h2>Tres pasos para tu primer trueque</h2>
+        <p class="subtitulo">Sin complicaciones. Publicas, buscas y cambias.</p>
+      </div>
+      <div class="grid">
+        <div class="paso reveal">
+          <div class="paso-numero">1</div>
+          <h3>Publica tus tomos</h3>
+          <p>Sube fotos, estado y lo que te gustaría recibir a cambio.</p>
+        </div>
+        <div class="paso reveal reveal-retraso-1">
+          <div class="paso-numero">2</div>
+          <h3>Encuentra un match</h3>
+          <p>Te mostramos quién tiene lo que buscas y quién busca lo que tienes.</p>
+        </div>
+        <div class="paso reveal reveal-retraso-2">
+          <div class="paso-numero">3</div>
+          <h3>Acuerda y cambia</h3>
+          <p>Chatea, acuerden un punto de encuentro y califica al terminar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESTADÍSTICAS -->
+  <section style="padding-top:0;">
+    <div class="contenedor">
+      <div class="cifras">
+        <div class="reveal"><strong class="contador" data-meta="1500" data-prefijo="+">0</strong><span>Coleccionistas activos</span></div>
+        <div class="reveal reveal-retraso-1"><strong class="contador" data-meta="8200" data-prefijo="+">0</strong><span>Tomos intercambiados</span></div>
+        <div class="reveal reveal-retraso-2"><strong class="contador" data-meta="48" data-sufijo="★">0</strong><span>Calificación (de 5)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. TESTIMONIOS -->
+  <section id="testimonios" style="background:var(--blanco); border-top: var(--borde-grueso);">
+    <div class="contenedor">
+      <div class="reveal">
+        <span class="etiqueta etiqueta-centro">Testimonios</span>
+        <h2>Lo que dicen los coleccionistas</h2>
+        <p class="subtitulo">Testimonios de ejemplo para la presentación.</p>
+      </div>
+      <div class="grid">
+        <div class="tarjeta testimonio reveal">
+          <div class="estrellas">★★★★★</div>
+          <blockquote>"Tenía tomos repetidos juntando polvo. Los cambié por los que me faltaban y ahorré bastante."</blockquote>
+          <div class="autor-caja">
+            <div class="avatar" style="background:#c0432f">AK</div>
+            <div><strong>Andrés K.</strong><small>Coleccionista de acción</small></div>
+          </div>
+        </div>
+        <div class="tarjeta testimonio reveal reveal-retraso-1">
+          <div class="estrellas">★★★★★</div>
+          <blockquote>"Encontré en una semana el tomo que buscaba hace meses. La alerta de búsqueda funciona muy bien."</blockquote>
+          <div class="autor-caja">
+            <div class="avatar" style="background:#111">NR</div>
+            <div><strong>Natalia R.</strong><small>Fan del romance</small></div>
+          </div>
+        </div>
+        <div class="tarjeta testimonio reveal reveal-retraso-2">
+          <div class="estrellas">★★★★★</div>
+          <blockquote>"Las calificaciones me dieron confianza para cambiar con gente nueva. Todo salió bien."</blockquote>
+          <div class="autor-caja">
+            <div class="avatar" style="background:#3a3a3a">LT</div>
+            <div><strong>Luis T.</strong><small>Coleccionista de ciencia ficción</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. CTA 2 -->
+  <section class="cta-banda" id="cta-2">
+    <svg class="loto loto-blanco flotar-hoja-2" style="width:110px;height:110px;right:5%;top:30px;transform:rotate(12deg);opacity:0.18;" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <svg class="loto loto-blanco flotar-hoja" style="width:60px;height:60px;left:8%;bottom:24px;transform:rotate(-35deg);opacity:0.18;" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <div class="contenedor reveal">
+      <h2>¿Listo para completar tu colección?</h2>
+      <p>Miles de tomos esperan un nuevo hogar.</p>
+      <a href="#registro" class="btn btn-blanco" id="btn-cta-2">Quiero cambiar →</a>
+    </div>
+  </section>
+
+  <!-- 7. FORMULARIO (HubSpot) -->
+  <section id="registro">
+    <div class="contenedor registro-grid">
+      <div class="reveal">
+        <span class="etiqueta">Contacto</span>
+        <h2>¿Quieres recibir novedades?</h2>
+        <p style="color:var(--carbon);">Déjanos tus datos y te avisamos cuando abramos tu ciudad y lancemos nuevas funciones.</p>
+        <ul>
+          <li>Registro gratuito</li>
+          <li>Alertas de tomos que buscas</li>
+          <li>Sin spam, puedes darte de baja cuando quieras</li>
+        </ul>
+      </div>
+      <div class="formulario reveal reveal-retraso-1">
+        <h3>Únete a la comunidad</h3>
+        <p>Te escribimos con novedades y oportunidades de trueque.</p>
+        <!-- Aquí va el código de inserción del formulario de HubSpot -->
+        <div id="hubspot-form">
+          <div class="marcador">[Pega aquí el código de inserción de HubSpot]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. FAQ -->
+  <section id="faq" style="background:var(--blanco); border-top: var(--borde-grueso);">
+    <div class="contenedor">
+      <div class="reveal">
+        <span class="etiqueta etiqueta-centro">Preguntas</span>
+        <h2>Preguntas frecuentes</h2>
+        <p class="subtitulo">Lo que más nos preguntan antes de cambiar.</p>
+      </div>
+      <div class="faq reveal">
+        <details id="faq-1">
+          <summary>¿Cuánto cuesta usar MangaTrueque?</summary>
+          <p>Registrarte y publicar tus tomos es gratis. Solo pagas el envío si cambias por correo.</p>
+        </details>
+        <details id="faq-2">
+          <summary>¿Cómo sé que el tomo está en buen estado?</summary>
+          <p>Cada publicación incluye fotos reales y una escala de estado (nuevo, muy bueno, bueno, usado).</p>
+        </details>
+        <details id="faq-3">
+          <summary>¿Qué pasa si el intercambio no sale bien?</summary>
+          <p>Puedes reportar la situación desde la app y revisamos el caso junto con el historial de calificaciones.</p>
+        </details>
+        <details id="faq-4">
+          <summary>¿Puedo cambiar varios tomos a la vez?</summary>
+          <p>Sí. Puedes proponer un paquete de varios tomos por otro paquete.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. PRE-FOOTER -->
+  <section class="prefooter" style="overflow:hidden;">
+    <svg class="loto loto-rojo flotar-hoja" style="width:120px;height:120px;left:3%;top:30px;transform:rotate(20deg);opacity:0.2;" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <svg class="loto loto-negro flotar-hoja-3" style="width:90px;height:90px;right:4%;bottom:20px;transform:rotate(-18deg);opacity:0.15;" aria-hidden="true"><use href="#hoja-loto"/></svg>
+    <div class="contenedor">
+      <div class="prefooter-caja reveal">
+        <h2>Tu próximo tomo favorito te está esperando</h2>
+        <p>Únete gratis y empieza a cambiar hoy mismo.</p>
+        <a href="#registro" class="btn" id="btn-prefooter">Comenzar gratis →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. FOOTER -->
+  <footer>
+    <div class="contenedor">
+      <div class="footer-grid">
+        <div>
+          <div class="logo" style="color:white;margin-bottom:16px;"><span class="logo-icono">⇄</span> MangaTrueque</div>
+          <p>La comunidad para cambiar mangas entre coleccionistas.</p>
+        </div>
+        <div>
+          <h4>Producto</h4>
+          <a href="#beneficios">Beneficios</a>
+          <a href="#como-funciona">Cómo funciona</a>
+          <a href="#faq">Preguntas</a>
+        </div>
+        <div>
+          <h4>Contacto</h4>
+          <a href="#registro">Solicitar información</a>
+          <a href="#inicio">Inicio</a>
+        </div>
+      </div>
+      <div class="footer-base">
+        <span>© 2026 MangaTrueque. Proyecto de ejemplo.</span>
+        <span>Hecho por coleccionistas</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 20));
+
+    const toggle = document.getElementById('toggle');
+    const menu = document.getElementById('menu');
+    toggle.addEventListener('click', () => menu.classList.toggle('abierto'));
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('abierto')));
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el => observer.observe(el));
+
+    const contar = (el) => {
+      const meta = parseInt(el.dataset.meta, 10);
+      const prefijo = el.dataset.prefijo || '';
+      const sufijo = el.dataset.sufijo || '';
+      const inicio = performance.now();
+      const paso = (ahora) => {
+        const progreso = Math.min((ahora - inicio) / 1800, 1);
+        el.textContent = prefijo + Math.floor(progreso * meta) + sufijo;
+        if (progreso < 1) requestAnimationFrame(paso);
+      };
+      requestAnimationFrame(paso);
+    };
+    const contadorObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          contar(entry.target);
+          contadorObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.contador').forEach(c => contadorObserver.observe(c));
+  </script>
+
+</body>
+</html>
